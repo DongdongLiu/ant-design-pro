@@ -11,8 +11,11 @@ import GlobalFooter from '../components/GlobalFooter';
 import SiderMenu from '../components/SiderMenu';
 import NotFound from '../routes/Exception/404';
 import { getRoutes } from '../utils/utils';
+import Authorized from '../components/Authorized';
+import { getRole } from '../utils/role';
 
 const { Content } = Layout;
+const { AuthorizedRoute } = Authorized;
 
 const query = {
   'screen-xs': {
@@ -81,12 +84,22 @@ class BasicLayout extends React.PureComponent {
                 {
                   getRoutes(match.path, routerData).map(item =>
                     (
-                      <Route
-                        key={item.key}
-                        path={item.path}
-                        component={item.component}
-                        exact={item.exact}
-                      />
+                      item.role ?
+                        <AuthorizedRoute
+                          key={item.key}
+                          path={item.path}
+                          component={item.component}
+                          exact={item.exact}
+                          role={item.role}
+                          getRole={getRole}
+                          redirectPath="/exception/403"
+                        /> :
+                        <Route
+                          key={item.key}
+                          path={item.path}
+                          component={item.component}
+                          exact={item.exact}
+                        />
                     )
                   )
                 }

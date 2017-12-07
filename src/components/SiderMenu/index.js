@@ -4,9 +4,12 @@ import { Link } from 'dva/router';
 import logo from '../../assets/logo.svg';
 import styles from './index.less';
 import { getMenuData } from '../../common/menu';
+import Authorized from '../Authorized';
+import { getRole } from '../../utils/role';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
+const { AuthorizedRoute } = Authorized;
 
 export default class SiderMenu extends PureComponent {
   constructor(props) {
@@ -80,8 +83,29 @@ export default class SiderMenu extends PureComponent {
         itemPath = `/${item.path || ''}`.replace(/\/+/g, '/');
       }
       if (item.children && item.children.some(child => child.name)) {
-        return item.hideInMenu ? null :
-          (
+        let renderSubMenu;
+        if (item.hideInMenu) {
+          renderSubMenu = null;
+        } else if (item.role) {
+          renderSubMenu = (
+            <Authorized role={item.role} getRole={getRole} key={item.key || item.path}>
+              <SubMenu
+                title={
+                  item.icon ? (
+                    <span>
+                      <Icon type={item.icon} />
+                      <span>{item.name}</span>
+                    </span>
+                  ) : item.name
+                }
+                key={item.key || item.path}
+              >
+                {this.getNavMenuItems(item.children)}
+              </SubMenu>
+            </Authorized>
+          );
+        } else {
+          renderSubMenu = (
             <SubMenu
               title={
                 item.icon ? (
@@ -96,10 +120,37 @@ export default class SiderMenu extends PureComponent {
               {this.getNavMenuItems(item.children)}
             </SubMenu>
           );
+        }
+        return renderSubMenu;
       }
       const icon = item.icon && <Icon type={item.icon} />;
-      return item.hideInMenu ? null :
-        (
+      let renderMenuItem;
+      if (item.hideInMenu) {
+        renderMenuItem = null;
+      } else if (item.role) {
+        renderMenuItem = (
+          <Authorized role={item.role} getRole={getRole} key={item.key || item.path}>
+            <Menu.Item key={item.key || item.path}>
+              {
+                /^https?:\/\//.test(itemPath) ? (
+                  <a href={itemPath} target={item.target}>
+                    {icon}<span>{item.name}</span>
+                  </a>
+                ) : (
+                  <Link
+                    to={itemPath}
+                    target={item.target}
+                    replace={itemPath === this.props.location.pathname}
+                  >
+                    {icon}<span>{item.name}</span>
+                  </Link>
+                )
+              }
+            </Menu.Item>
+          </Authorized>
+        );
+      } else {
+        renderMenuItem = (
           <Menu.Item key={item.key || item.path}>
             {
               /^https?:\/\//.test(itemPath) ? (
@@ -118,6 +169,8 @@ export default class SiderMenu extends PureComponent {
             }
           </Menu.Item>
         );
+      }
+      return renderMenuItem;
     });
   }
   handleOpenChange = (openKeys) => {
