@@ -26,6 +26,7 @@ const menuData = [{
     path: 'step-form',
   }, {
     name: '高级表单',
+    role: 'admin',
     path: 'advanced-form',
   }],
 }, {
@@ -60,12 +61,14 @@ const menuData = [{
   name: '详情页',
   icon: 'profile',
   path: 'profile',
+  role: 'admin',
   children: [{
     name: '基础详情页',
     path: 'basic',
   }, {
     name: '高级详情页',
     path: 'advanced',
+    role: 'admin',
   }],
 }, {
   name: '结果页',
@@ -85,6 +88,7 @@ const menuData = [{
   children: [{
     name: '403',
     path: '403',
+    role: 'user',
   }, {
     name: '404',
     path: '404',
